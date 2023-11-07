@@ -1,15 +1,21 @@
+import highway_env
+
 import gymnasium as gym
+
 from gymnasium.wrappers import RecordVideo
 from stable_baselines3 import DQN
 
-import highway_env
 
-
-TRAIN = True
+# from gymnasium.envs.registration import register
+TRAIN = False
 
 if __name__ == '__main__':
     # Create the environment
-    env = gym.make("highway-fast-v0", render_mode="rgb_array")
+    # gym.register('merge_in-v0', entry_point='highway_env.envs:MergeinEnv')
+    # highway_env.register_highway_envs()
+    # print(gym.envs.registry.keys())
+    # env = gym.make('merge_in-v0', render_mode="rgb_array")
+    env = gym.make('merge_in-v0', render_mode="rgb_array")
     obs, info = env.reset()
 
     # Create the model
@@ -24,19 +30,23 @@ if __name__ == '__main__':
                 gradient_steps=1,
                 target_update_interval=50,
                 verbose=1,
-                tensorboard_log="highway_dqn/")
+                tensorboard_log="merge_in_dqn/")
 
     # Train the model
     if TRAIN:
-        model.learn(total_timesteps=int(2e4))
-        model.save("highway_dqn/model")
+        model.learn(total_timesteps=int(2e4), progress_bar=True)
+        model.save("merge_in/model")
         del model
 
     # Run the trained model and record video
-    model = DQN.load("highway_dqn/model", env=env)
-    env = RecordVideo(env, video_folder="highway_dqn/videos", episode_trigger=lambda e: True)
+    model = DQN.load("merge_in/model", env=env)
+    env = RecordVideo(env, video_folder="merge_in/videos", episode_trigger=lambda e: True)
     env.unwrapped.set_record_video_wrapper(env)
-    env.configure({"simulation_frequency": 15})  # Higher FPS for rendering
+    env.configure({
+    "screen_width": 1280,
+    "screen_height": 560,
+    "renderfps": 16
+    })  # Higher FPS for rendering
 
     for videos in range(10):
         done = truncated = False
