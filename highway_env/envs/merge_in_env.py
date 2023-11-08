@@ -117,21 +117,28 @@ class MergeinEnv(AbstractEnv):
         road = self.road
         ego_vehicle = self.action_type.vehicle_class(road,
                                                      road.network.get_lane(("j", "k", 0)).position(30, 0),
-                                                     speed=30)
+                                                     speed=25)
         road.vehicles.append(ego_vehicle)
 
         other_vehicles_type = utils.class_from_path(self.config["other_vehicles_type"])
 
 
         # Generate a list of 20 tuples with random position and speed values
-        random_cars = [(self.np_random.uniform(0, 1), self.np_random.uniform(20, 35)) for _ in range(20)]
+        number_of_cars = 10
+        random_cars = [(self.np_random.uniform(0, 1), self.np_random.uniform(27, 30)) for _ in range(number_of_cars)]
 
 
         for i , (position, speed) in enumerate(random_cars):
             lane = road.network.get_lane(("a", "b", self.np_random.integers(2)))
-            position = lane.position(position + 20* i , 0)#+ self.np_random.uniform(-5, 5)
+            position = lane.position(position + (380/number_of_cars)* i , 0)#+ self.np_random.uniform(-5, 5)
             speed = speed #+= self.np_random.uniform(-1, 1)
             road.vehicles.append(other_vehicles_type(road, position, speed=speed))
+        
+        # Add a vehicle before and after the ego vehicle on the merging lane
+
+        # merge_lane = road.network.get_lane(("b", "c", 0))
+        # road.vehicles.append(other_vehicles_type(road, merge_lane.position(10, 0), 25))
+        # road.vehicles.append(other_vehicles_type(road, merge_lane.position(100, 0), 25))
 
         # merging_v = other_vehicles_type(road, road.network.get_lane(("j", "k", 0)).position(110, 0), speed=20)
         ego_vehicle.target_speed = 30
