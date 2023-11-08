@@ -19,11 +19,12 @@ if __name__ == '__main__':
     # print(gym.envs.registry.keys())
     # env = gym.make('merge_in-v0', render_mode="rgb_array")
     situation = 'merge_in-v0'
+    modelname = "DQN"
     frameSize = (1280,560)
     env = gym.make(situation, render_mode="rgb_array")
     obs, info = env.reset()
 
-    out = cv2.VideoWriter('video'+situation+'.avi', cv2.VideoWriter_fourcc(*'mp4v'), 16, frameSize)
+    out = cv2.VideoWriter('merge_in/videos/video_'+situation+"_"+ modelname+'.avi', cv2.VideoWriter_fourcc(*'mp4v'), 16, frameSize)
 
 
     # Create the model
@@ -38,23 +39,27 @@ if __name__ == '__main__':
                 gradient_steps=1,
                 target_update_interval=50,
                 verbose=1,
-                tensorboard_log="merge_in_dqn/")
+                tensorboard_log="merge_in_"+modelname+"/")
 
     # Train the model
     if TRAIN:
-        model.learn(total_timesteps=int(2e4), progress_bar=True)
-        model.save("merge_in/model")
+        model.learn(total_timesteps=int(10e4), progress_bar=True)
+        model.save("merge_in/model_"+modelname)
         del model
 
     # Run the trained model and record video
-    model = DQN.load("merge_in/model", env=env)
+    model = DQN.load("merge_in/model_"+modelname, env=env)
     # env = RecordVideo(env, video_folder="merge_in/videos", episode_trigger=lambda e: True)
     # env.unwrapped.set_record_video_wrapper(env)
     env.configure({
     "screen_width": 1280,
     "screen_height": 560,
     "renderfps": 16
-    })  # Higher FPS for rendering
+    })# Higher FPS for rendering
+    env.configure({
+    "simulation_frequency": 15,
+    "policy_frequency":15
+    }) 
 
     # for videos in range(10):
     #     done = truncated = False
@@ -99,26 +104,26 @@ if __name__ == '__main__':
 
     number_of_collisions = 0
     T = 1
-    while True:
+    while T < 100:
         done = truncated = False
         obs, info = env.reset()
         while not (done or truncated):
             action, _states = model.predict(obs, deterministic=True)
             obs, reward, done, truncated, info = env.step(action)  # env.step(action.item(0))
-            print(action)
-            print(obs)
-            print(info)
-            print(reward)
+            # print(action)
+            # print(obs)
+            # print(info)
+            # print(reward)
             if info.get('crashed'):
                 number_of_collisions += 1
             env.render()
-            cur_frame = env.render(mode="rgb_array")
+            cur_frame = env.render()
             out.write(cur_frame)
         #print('crashrate is '+str(float(number_of_collisions)/T)+' and T is'+str(T))
         time.sleep(2)
         T+=1
 
     out.release()
-    print('number_of_collisions is:', number_of_collisions)
+    # print('number_of_collisions is:', number_of_collisions)
     print('DONE')
 
