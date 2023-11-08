@@ -8,6 +8,7 @@ from highway_env.road.lane import LineType, StraightLane, SineLane
 from highway_env.road.road import Road, RoadNetwork
 from highway_env.vehicle.controller import ControlledVehicle
 from highway_env.vehicle.objects import Obstacle
+from gymnasium import spaces
 
 
 class MergeinEnv(AbstractEnv):
@@ -24,7 +25,7 @@ class MergeinEnv(AbstractEnv):
     def default_config(cls) -> dict:
         cfg = super().default_config()
         cfg.update({
-            "collision_reward": -1,
+            "collision_reward": -10,
             "right_lane_reward": 0.1,
             "high_speed_reward": 0.2,
             "reward_speed_range": [20, 30],
@@ -137,3 +138,55 @@ class MergeinEnv(AbstractEnv):
         ego_vehicle.target_speed = 30
         # road.vehicles.append(merging_v)
         self.vehicle = ego_vehicle
+
+class DiscreteMergeInEnv(MergeinEnv):
+    # @classmethod
+    # def default_config(cls) -> dict:
+    #     config = super().default_config()
+    #     config.update({
+    #         "observation": {
+    #             "type": "Kinematics",
+    #             #"features": ["presence", "x", "y", "vx", "vy", "long_off", "lat_off", "ang_off"],
+    #         },
+    #        "action": {
+    #             "type": "ContinuousAction",
+    #             "longitudinal": True,
+    #             "lateral": True,
+    #             # "actions_per_axis": (3, 5)
+    #         },
+    #     })
+        
+    #     return config
+    
+    # def __init__(self, config=None):
+    #     super().__init__(config)
+    #     self.action_space = spaces.Discrete(15)  # Total 15 discrete actions (3 longitudinal actions × 5 lateral actions)
+
+    def _reward(self, action: int) -> float:
+        """
+        The vehicle is rewarded for driving with high speed on lanes to the right and avoiding collisions
+
+        But an additional altruistic penalty is also suffered if any vehicle on the merging lane has a low speed.
+
+        :param action: the action performed
+        :return: the reward of the state-action transition
+        """
+        reward = sum(self.config.get(name, 0) * reward for name, reward in self._rewards(action).items())
+        return utils.lmap(reward,
+                          [0, self.config["collision_reward"] + self.config["merging_speed_reward"] +
+                           self.config["high_speed_reward"]], # + self.config["right_lane_reward"]],
+                          [0, 1])
+
+    def _rewards(self, action: int) -> Dict[Text, float]:
+        scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
+        return {
+            "collision_reward": self.vehicle.crashed,
+            "right_lane_reward": self.vehicle.lane_index[2] / 1,
+            "high_speed_reward": scaled_speed,
+            # "lane_change_reward": action in [0, 2],
+            "merging_speed_reward": sum(  # Altruistic penalty
+                (vehicle.target_speed - vehicle.speed) / vehicle.target_speed
+                for vehicle in self.road.vehicles
+                if vehicle.lane_index == ("b", "c", 2) and isinstance(vehicle, ControlledVehicle)
+            )
+        }
