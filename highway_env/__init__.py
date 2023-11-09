@@ -26,6 +26,12 @@ def register_highway_envs():
         entry_point='highway_env.envs:HighwayEnvFast',
     )
 
+    # complex_city_env.py
+    register(
+        id='complex-city-v0',
+        entry_point='highway_env.envs:ComplexcityEnv',
+    )
+
     # intersection_env.py
     register(
         id='intersection-v0',

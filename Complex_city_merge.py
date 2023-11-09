@@ -1,15 +1,18 @@
 import cv2
 import gym
-import highway_env
+
+from gymnasium.envs.registration import register
+
 from stable_baselines3 import PPO
 from sb3_contrib import TRPO
 import torch
 import tensorflow
 from highway_env.vehicle.kinematics import Performance, Logger
-
+import highway_env
+highway_env.register_highway_envs()
 
 #situation = "intersection-v1"
-env_name = "complex_city-v1"
+env_name = "complex_city-v0"
 #situation = "racetrack-v0"
 # situation = "merge_in-v0" 
 modelname = "TRPO"
