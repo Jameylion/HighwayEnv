@@ -26,7 +26,7 @@ def objective(params):
     gamma = params['gamma']
 
     # Create environment and train the model
-    env = make_vec_env(situation, n_envs=8, vec_env_cls=SubprocVecEnv)
+    env = make_vec_env(situation, n_envs=6, vec_env_cls=SubprocVecEnv)
     model = PPO("MlpPolicy",
                 env,
                 policy_kwargs=dict(net_arch=net_arch),
@@ -37,7 +37,7 @@ def objective(params):
                 gamma=gamma,
                 verbose=0)
     
-    model.learn(total_timesteps=int(2e4), log_interval=1000, progress_bar=False)
+    model.learn(total_timesteps=int(1e4), log_interval=1000, progress_bar=False)
     mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
 
     # Minimize the negative mean reward (maximize the reward)

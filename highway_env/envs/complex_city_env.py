@@ -1,6 +1,6 @@
 from typing import Tuple, Dict, Text
 
-from gym.envs.registration import register
+from gymnasium.envs.registration import register
 import numpy as np
 
 from highway_env import utils

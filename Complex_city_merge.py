@@ -1,5 +1,5 @@
 import cv2
-import gym
+import gymnasium as gym
 
 from gymnasium.envs.registration import register
 
@@ -10,9 +10,13 @@ import tensorflow
 from highway_env.vehicle.kinematics import Performance, Logger
 import highway_env
 highway_env.register_highway_envs()
+register(
+    id='complex-city-v0',
+    entry_point='highway_env.envs:ComplexcityEnv',
+    )   
 
 #situation = "intersection-v1"
-env_name = "complex_city-v0"
+env_name = "complex-city-v0"
 #situation = "racetrack-v0"
 # situation = "merge_in-v0" 
 modelname = "TRPO"
@@ -23,24 +27,24 @@ frameSize = (1280,560)
 out = cv2.VideoWriter('merge_in/videos/video_'+env_name+"_"+modelname+'.avi', cv2.VideoWriter_fourcc(*'mp4v'), 16, frameSize)
 
 
-env = gym.make(env_name)
+env = gym.make(env_name, render_mode="rgb_array")
 env.configure({
     "screen_width": 1280,
     "screen_height": 560,
     "renderfps": 16
 })
-env.configure({
-    "action": {
-        "type": "ContinuousAction"
-    },
-    "offroad_terminal": False,
-    "other_vehicles": 1,
-    "vehicles_count": 6,
-    "initial_vehicle_count": 0,
-    "spawn_probability": 0.
+# env.configure({
+#     "action": {
+#         "type": "ContinuousAction"
+#     },
+#     "offroad_terminal": False,
+#     "other_vehicles": 1,
+#     "vehicles_count": 6,
+#     "initial_vehicle_count": 0,
+#     "spawn_probability": 0.
     
     
-})
+# })
 env.configure({
     "simulation_frequency": 15,
     "policy_frequency":15

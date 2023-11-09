@@ -120,6 +120,37 @@ class RoadNetwork(object):
             next_id = min(lanes,
                           key=lambda l: self.get_lane((_to, next_to, l)).distance(position))
         return next_id, self.get_lane((_to, next_to, next_id)).distance(position)
+    
+    def get_random_destination(self, previous_destination: str = None) -> LaneIndex:
+        """
+        Get a random new lane, which is not equal to the given index.
+        Usefull to for getting a new destination, when the current destination is reached.
+
+        :param index: a tuple (origin node, destination node, lane id on the road).
+        :return: a random destination graph node.
+        """
+        possible_targets = []
+        for _from, to_dict in self.graph.items():
+            possible_targets.append(_from)
+            for _to, lanes in to_dict.items():
+                possible_targets.append(_to)
+        possible_targets = np.unique(np.array(possible_targets)).tolist()
+        # check which old destination we should exclude from the draw
+        if isinstance(previous_destination, str):
+            prev_index = possible_targets.index(previous_destination)
+        else:
+            prev_index = -1
+        randomLaneIndex = np.random.randint(1, len(possible_targets))
+        # ensure we find a different destination
+        while randomLaneIndex == prev_index and len(possible_targets) > 1:
+            randomLaneIndex = np.random.randint(1, len(possible_targets))
+        return possible_targets[randomLaneIndex]
+    
+    def get_random_lane(self) -> AbstractLane:
+        _from = np.random.RandomState().choice(list(self.graph.keys()))
+        _to = np.random.RandomState().choice(list(self.graph[_from].keys()))
+        _id = np.random.RandomState().choice(len(self.graph[_from][_to]))
+        return self.get_lane((_from, _to, _id))
 
     def bfs_paths(self, start: str, goal: str) -> List[List[str]]:
         """
@@ -402,3 +433,5 @@ class Road(object):
 
     def __repr__(self):
         return self.vehicles.__repr__()
+    
+
