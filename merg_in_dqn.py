@@ -11,6 +11,7 @@ from highway_env.vehicle.kinematics import Performance, Logger
 
 # from gymnasium.envs.registration import register
 TRAIN = False
+RETRAIN = True
 
 if __name__ == '__main__':
     # Create the environment
@@ -29,7 +30,7 @@ if __name__ == '__main__':
 
     # Create the model
     model = DQN('MlpPolicy', env,
-                policy_kwargs=dict(net_arch=[256, 256]),
+                policy_kwargs=dict(net_arch=[256, 256,256]),
                 learning_rate=5e-4,
                 buffer_size=15000,
                 learning_starts=200,
@@ -46,7 +47,13 @@ if __name__ == '__main__':
         model.learn(total_timesteps=int(10e4), progress_bar=True)
         model.save("merge_in/model_"+modelname)
         del model
-
+    
+    if RETRAIN:
+        model = DQN.load("merge_in/model_"+modelname, env=env)
+        model.learn(total_timesteps=int(10e4), progress_bar=True)
+        model.save("merge_in/model_"+modelname)
+        del model
+    
     # Run the trained model and record video
     model = DQN.load("merge_in/model_"+modelname, env=env)
     # env = RecordVideo(env, video_folder="merge_in/videos", episode_trigger=lambda e: True)
@@ -104,7 +111,7 @@ if __name__ == '__main__':
 
     number_of_collisions = 0
     T = 1
-    while T < 100:
+    while T < 10:
         done = truncated = False
         obs, info = env.reset()
         while not (done or truncated):

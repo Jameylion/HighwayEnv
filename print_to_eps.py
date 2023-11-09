@@ -1,53 +1,37 @@
-import os
-import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
-from collections import defaultdict
-from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
+def plot_csv_to_eps(file1, file2, file3, output_file, title):
+    # Read CSV files into pandas dataframes
+    df1 = pd.read_csv(file1)
+    df2 = pd.read_csv(file2)
+    df3 = pd.read_csv(file3)
 
+    # Create subplots
+    fig, axs = plt.subplots()
 
-def tabulate_events(dpath):
-    summary_iterators = [EventAccumulator(os.path.join(dpath, dname)).Reload() for dname in os.listdir(dpath)]
+    # Plot data from each CSV file
+    axs.plot(df1['Step'], df1['Value'], label='PPO')
+    axs.plot(df2['Step'], df2['Value'], label='TRPO')
+    axs.plot(df3['Step'], df3['Value'], label='DQN')
 
-    tags = summary_iterators[0].Tags()['scalars']
+    # Set labels and title
+    axs.set_xlabel('Step')
+    axs.set_ylabel('Value')
+    axs.set_title(title)
 
-    for it in summary_iterators:
-        assert it.Tags()['scalars'] == tags
+    # Add legend
+    axs.legend()
 
-    out = defaultdict(list)
-    steps = []
+    # Save the plot as EPS file
+    plt.savefig(output_file, format='eps')
 
-    for tag in tags:
-        steps = [e.step for e in summary_iterators[0].Scalars(tag)]
-
-        for events in zip(*[acc.Scalars(tag) for acc in summary_iterators]):
-            assert len(set(e.step for e in events)) == 1
-
-            out[tag].append([e.value for e in events])
-
-    return out, steps
-
-
-def to_csv(dpath):
-    dirs = os.listdir(dpath)
-
-    d, steps = tabulate_events(dpath)
-    tags, values = zip(*d.items())
-    np_values = np.array(values)
-
-    for index, tag in enumerate(tags):
-        df = pd.DataFrame(np_values[index], index=steps, columns=dirs)
-        df.to_csv(get_file_path(dpath, tag))
-
-
-def get_file_path(dpath, tag):
-    file_name = tag.replace("/", "_") + '.csv'
-    folder_path = os.path.join(dpath, 'csv')
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-    return os.path.join(folder_path, file_name)
-
-
-if __name__ == '__main__':
-    path = "merge_in_TRPO\TRPO_2"
-    to_csv(path)
+folder = "C:/Users/Admin/downloads"
+plot_csv_to_eps(folder+ "/run-merge_in_ppo_PPO_2-tag-rollout_ep_len_mean.csv",
+                 folder+"/run-merge_in_TRPO_TRPO_2-tag-rollout_ep_len_mean.csv",
+                   folder+"/run-merge_in_dqn_DQN_7-tag-rollout_ep_len_mean.csv", 
+                   "D:/OneDrive/Studie/Embedded_Systems/Master_year_2/FAIP_IFEEMCS520100/Project/ep_len_graph.eps", "Mean Episode Length")
+plot_csv_to_eps(folder+ "/run-merge_in_ppo_PPO_2-tag-rollout_ep_rew_mean.csv",
+                 folder+"/run-merge_in_TRPO_TRPO_2-tag-rollout_ep_rew_mean.csv",
+                   folder+"/run-merge_in_dqn_DQN_7-tag-rollout_ep_rew_mean.csv", 
+                   "D:/OneDrive/Studie/Embedded_Systems/Master_year_2/FAIP_IFEEMCS520100/Project/ep_rew_graph.eps", "Mean Reward Length")

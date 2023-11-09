@@ -124,7 +124,7 @@ class MergeinEnv(AbstractEnv):
 
 
         # Generate a list of 20 tuples with random position and speed values
-        number_of_cars = 10
+        number_of_cars = 20
         random_cars = [(self.np_random.uniform(0, 1), self.np_random.uniform(27, 30)) for _ in range(number_of_cars)]
 
 

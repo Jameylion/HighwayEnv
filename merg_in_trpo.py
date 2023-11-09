@@ -131,7 +131,6 @@ if __name__ == '__main__':
             cur_frame = env.render()
             out.write(cur_frame)
         #print('crashrate is '+str(float(number_of_collisions)/T)+' and T is'+str(T))
-        time.sleep(2)
         T+=1
 
     out.release()
