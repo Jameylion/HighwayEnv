@@ -34,4 +34,4 @@ plot_csv_to_eps(folder+ "/run-merge_in_ppo_PPO_2-tag-rollout_ep_len_mean.csv",
 plot_csv_to_eps(folder+ "/run-merge_in_ppo_PPO_2-tag-rollout_ep_rew_mean.csv",
                  folder+"/run-merge_in_TRPO_TRPO_2-tag-rollout_ep_rew_mean.csv",
                    folder+"/run-merge_in_dqn_DQN_7-tag-rollout_ep_rew_mean.csv", 
-                   "D:/OneDrive/Studie/Embedded_Systems/Master_year_2/FAIP_IFEEMCS520100/Project/ep_rew_graph.eps", "Mean Reward Length")
+                   "D:/OneDrive/Studie/Embedded_Systems/Master_year_2/FAIP_IFEEMCS520100/Project/ep_rew_graph.eps", "Mean Episode Reward")

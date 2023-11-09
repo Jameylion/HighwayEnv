@@ -31,23 +31,23 @@ env = gym.make(env_name, render_mode="rgb_array")
 env.configure({
     "screen_width": 1280,
     "screen_height": 560,
-    "renderfps": 16
+    "renderfps": 30
 })
-# env.configure({
-#     "action": {
-#         "type": "ContinuousAction"
-#     },
-#     "offroad_terminal": False,
-#     "other_vehicles": 1,
-#     "vehicles_count": 6,
-#     "initial_vehicle_count": 0,
-#     "spawn_probability": 0.
-    
-    
-# })
 env.configure({
-    "simulation_frequency": 15,
-    "policy_frequency":15
+    "action": {
+        "type": "DiscreteMetaAction"
+    },
+    "offroad_terminal": False,
+    "other_vehicles": 1,
+    "vehicles_count": 30,
+    "initial_vehicle_count": 0,
+    "spawn_probability": 0.
+    
+    
+})
+env.configure({
+    "simulation_frequency": 30,
+    "policy_frequency":30
 })
 
 env.reset()
@@ -62,7 +62,7 @@ model = TRPO.load("merge_in/model_"+modelname, env=env)
 perfm = Performance()
 lolly = Logger()
 
-number_of_runs = 100
+number_of_runs = 10
 for f in range(number_of_runs):
     done = truncated = False
     obs, info = env.reset()

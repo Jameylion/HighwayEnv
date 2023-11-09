@@ -11,7 +11,7 @@ from highway_env.vehicle.kinematics import Performance, Logger
 
 # from gymnasium.envs.registration import register
 TRAIN = False
-RETRAIN = True
+RETRAIN = False
 
 if __name__ == '__main__':
     # Create the environment
